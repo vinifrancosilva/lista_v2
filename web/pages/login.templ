@@ -1,0 +1,54 @@
+package pages
+
+import "github.com/vinifrancosilva/lista_v2/web/layouts"
+
+templ LoginPage() {
+	@layouts.Base("Autenticação") {
+		<div class="flex flex-col justify-center self-center h-full">
+			<div class="p-12 border text-base-content mx-auto rounded-2xl w-100 ">
+				<div class="mb-4">
+					<h3 class="font-semibold text-2xl text-gray-800">Login</h3>
+				</div>
+				<div class="space-y-5">
+					<div class="form-group">
+						<label for="usuario">Usuário</label>
+						<input
+							data-bind-usuario
+							data-ref-input_usuario
+							data-on-load="$input_usuario.focus()"
+							type="text"
+							class="input"
+							id="usuario"
+							name="usuario"
+							placeholder="usuario"
+							required
+						/>
+					</div>
+					<div class="form-group">
+						<label for="senha">Senha</label>
+						<input
+							data-bind-senha
+							data-ref="input_senha"
+							data-on-keydown__window="evt.key === 'Enter' && @post('/login')"
+							type="password"
+							class="input"
+							id="senha"
+							name="senha"
+							placeholder="senha"
+							required
+						/>
+					</div>
+					<div>
+						<button
+							data-on-click="@post('/login')"
+							class="btn btn-primary w-full"
+						>
+							Login
+						</button>
+					</div>
+				</div>
+			</div>
+			<div id="erro"></div>
+		</div>
+	}
+}

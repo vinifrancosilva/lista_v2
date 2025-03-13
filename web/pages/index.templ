@@ -1,0 +1,30 @@
+package pages;
+
+import (
+	"github.com/vinifrancosilva/lista_v2/web/components"
+	"github.com/vinifrancosilva/lista_v2/web/layouts"
+	"github.com/vinifrancosilva/lista_v2/web/structs"
+)
+
+var navbar = structs.NavBar{
+	Titulo: "Lista V2",
+	Itens: []structs.NavItem{
+		{Texto: "Listas", Link: "/"},
+		{Texto: "Categorias", Link: "/categorias"},
+		{Texto: "Logout", Link: "/logout"},
+	},
+}
+
+templ Index(titulo string) {
+	@layouts.Base(titulo) {
+		@components.NavbarDrawer(navbar) {
+			<div class="flex p-4">
+				<div class="p-4 space-y-4">
+					<h1 class="text-4xl font-bold">Listas V2</h1>
+					<p class="text-lg">Crie e edite suas listas</p>
+				</div>
+				<div></div>
+			</div>
+		}
+	}
+}
