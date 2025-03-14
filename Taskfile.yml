@@ -1,70 +1,70 @@
 version: "3"
 
 env:
-  dotenv: ['.env']
-  POSTGRES_URL: "postgres://postgres:postgres@127.0.0.1:5432/listas?sslmode=disable"
+  dotenv: [".env"]
+  POSTGRES_URL: "postgres://postgres:postgres@127.0.0.1:5432/listas?sslmode=disable&search_path=listas"
   STATIC_DIR: "web/static"
 
 tasks:
   tools:
     cmds:
-    - go install github.com/a-h/templ/cmd/templ@latest
-    - go install github.com/air-verse/air@latest
-    - go install github.com/go-delve/delve/cmd/dlv@latest
-    - go install github.com/go-task/task/v3/cmd/task@latest
+      - go install github.com/a-h/templ/cmd/templ@latest
+      - go install github.com/air-verse/air@latest
+      - go install github.com/go-delve/delve/cmd/dlv@latest
+      - go install github.com/go-task/task/v3/cmd/task@latest
 
   # The `build:` tasks below are used together for "production" builds of your project
   build:templ:
     cmds:
-    - templ generate
+      - templ generate
     sources:
-    - "**/*.templ"
+      - "**/*.templ"
     generates:
-    - "**/*_templ.go"
+      - "**/*_templ.go"
 
   build:styles:
     cmds:
-    - pnpm exec tailwindcss -c tailwind.config.js -i web/styles/styles.css -o $STATIC_DIR/index.css
+      - pnpm exec tailwindcss -c tailwind.config.js -i web/styles/styles.css -o $STATIC_DIR/index.css
     sources:
-    - "./web/**/*.html"
-    - "./web/**/*.ts"
-    - "./web/**/*.templ"
-    - "./web/**/*.go"
+      - "./web/**/*.html"
+      - "./web/**/*.ts"
+      - "./web/**/*.templ"
+      - "./web/**/*.go"
     generates:
-    - "{{.STATIC_DIR}}/index.js"
+      - "{{.STATIC_DIR}}/index.js"
 
   build:sqlc:
     cmds:
-    - sqlc generate
+      - sqlc generate
     sources:
-    - "db/*.sql"
+      - "db/*.sql"
     generates:
-    - "models"
+      - "models"
 
   build:
     cmds:
-    - go build -ldflags "-s -w" -o listas
+      - go build -ldflags "-s -w" -o listas
     deps:
-    - build:templ
-    # - build:esbuild
-    # - build:styles
-    - build:sqlc
+      - build:templ
+      # - build:esbuild
+      # - build:styles
+      - build:sqlc
 
   # Use this task to debug your project with the delve debugger
   debug:
     cmds:
-    - dlv exec listas
+      - dlv exec listas
     deps:
-    - build
+      - build
 
   # The `live:` tasks below are used together for "dev" builds and will live-reload your entire project
   live:templ:
     cmds:
-    - templ generate --watch --proxy="http://localhost:8080" --open-browser=false
+      - templ generate --watch --proxy="http://localhost:8080" --open-browser=false
 
   live:styles:
     cmds:
-    - pnpm exec tailwindcss -c tailwind.config.js -i web/styles/styles.css -o $STATIC_DIR/index.css --watch
+      - pnpm exec tailwindcss -c tailwind.config.js -i web/styles/styles.css -o $STATIC_DIR/index.css --watch
 
   # live:esbuild:
   #   cmds:
@@ -72,61 +72,61 @@ tasks:
 
   live:sqlc:
     cmds:
-    - sqlc generate
+      - sqlc generate
     sources:
-    - "db/*.sql"
+      - "db/*.sql"
     generates:
-    - "models"
+      - "models"
 
   live:server:
     env:
-      dotenv: ['.env']
+      dotenv: [".env"]
     cmds:
-    - |
-      air  \
-       -build.cmd "go build -tags dev -o tmp/bin/main" \
-       -build.bin "export $(grep -v '^#' .env | xargs); ./tmp/bin/main" \
-       -build.delay "100" \
-       -build.exclude_dir "postgres,data,node_modules,web/libs/datastar/node_modules,web/libs/lit-html/node_modules" \
-       -build.include_ext "go" \
-       -build.stop_on_error "false" \
-       -build.send_interrupt "true" \
-       -build.kill_delay "200" \
-       -misc.clean_on_exit "true"
+      - |
+        air  \
+         -build.cmd "go build -tags dev -o tmp/bin/main" \
+         -build.bin "export $(grep -v '^#' .env | xargs); ./tmp/bin/main" \
+         -build.delay "100" \
+         -build.exclude_dir "postgres,data,node_modules,web/libs/datastar/node_modules,web/libs/lit-html/node_modules" \
+         -build.include_ext "go" \
+         -build.stop_on_error "false" \
+         -build.send_interrupt "true" \
+         -build.kill_delay "200" \
+         -misc.clean_on_exit "true"
 
   live:reload:
     cmds:
-    - |
-      air \
-      -build.cmd "templ generate --notify-proxy" \
-      -build.bin "true" \
-      -build.delay "300" \
-      -build.exclude_dir "" \
-      -build.include_dir "$STATIC_DIR" \
-      -build.include_ext "js,css" \
-      -build.send_interrupt "true" \
-      -build.kill_delay "200"
+      - |
+        air \
+        -build.cmd "templ generate --notify-proxy" \
+        -build.bin "true" \
+        -build.delay "300" \
+        -build.exclude_dir "" \
+        -build.include_dir "$STATIC_DIR" \
+        -build.include_ext "js,css" \
+        -build.send_interrupt "true" \
+        -build.kill_delay "200"
 
   live:
     deps:
-    - live:templ
-    # - live:styles
-    # - live:lit-html
-    # - live:esbuild
-    - live:sqlc
-    - live:server
-    - live:reload
+      # - live:styles
+      # - live:lit-html
+      # - live:esbuild
+      - live:sqlc
+      - live:server
+      - live:reload
+      - live:templ
 
   run:
     cmds:
-    - ./listas
+      - ./listas
     deps:
-    - build
+      - build
 
   cria_migration:
     cmds:
-    - migrate create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
+      - migrate create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
 
   roda_migration:
     cmds:
-    - migrate -database $POSTGRES_URL -path db/migrations up
+      - migrate -database $POSTGRES_URL -path db/migrations up

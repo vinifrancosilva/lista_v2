@@ -45,13 +45,17 @@ func main() {
 	e := echo.New()
 
 	// Middlewares
-	e.Use(middleware.Logger())
+	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(session.Middleware(pgSessionStore))
 	e.Use(middlewareEstaLogado)
 
 	// Routes
 	defineRotas(e)
+
+	// Roda o controle de conexões SSE
+	go controleConexoesSSE()
+	go testaControleConexoesSSE()
 
 	// Start server
 	if err := e.Start(":8888"); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -98,4 +102,11 @@ func dbInit() (*pgxpool.Pool, *pgstore.PGStore) {
 	}
 
 	return dbPool, store
+}
+
+func testaControleConexoesSSE() {
+	ticker := time.NewTicker(5 * time.Second)
+	for range ticker.C {
+		publisherChan <- "/api/lista"
+	}
 }

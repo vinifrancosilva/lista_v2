@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/a-h/templ"
 	"github.com/jackc/pgx/v5"
@@ -134,4 +135,49 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	}
 
 	return ctx.HTML(statusCode, buf.String())
+}
+
+// Handler fake só pra deixar as rotas montadas
+func handlerFake(c echo.Context) error {
+	return c.String(http.StatusOK, "FAKE HANDLER")
+}
+
+// ----------------------- API -----------------------
+
+// Lista
+// Get - abre o canal SSE que recebe todas as mudancas realizadas na lista
+func handlerApiListaGet(c echo.Context) error {
+	// cria a struct desse endpoint
+	ch := make(chan struct{})
+	subs := Subscriber{
+		Endpoint: c.Request().URL.Path,
+		Channel:  ch,
+	}
+
+	fmt.Println("Chamou o endpoint: ", c.Request().URL.Path)
+	// abre o canal SSE
+	sse := datastar.NewSSE(c.Response().Writer, c.Request())
+	fmt.Println("Iniciada conexão SSE")
+
+	// faz o subscribe
+	subscriberChan <- subs
+	fmt.Println("Enviado subscribe")
+
+	for {
+		select {
+		// se fechar a conexão, faz o unsubscribe
+		case <-c.Request().Context().Done():
+			// fecha o canal
+			unsubscriberChan <- subs
+			return nil
+		case <-ch:
+			html := "<div id='lista_de_listas' class='container mx-auto'>"
+			html += time.Now().String()
+			html += "</div>"
+			sse.MergeFragments(html)
+			// pega as informações atualizadas das listas no banco
+			// monta o template com as informações
+			// envia pro front com sse.MergeFragmentTempl()
+		}
+	}
 }

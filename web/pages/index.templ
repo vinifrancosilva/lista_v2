@@ -23,7 +23,23 @@ templ Index(titulo string) {
 					<h1 class="text-4xl font-bold">Listas V2</h1>
 					<p class="text-lg">Crie e edite suas listas</p>
 				</div>
-				<div></div>
+				<div>
+					<div class="form-group border p-4 rounded">
+						<input
+							data-bind-input_lista
+							data-on-keydown__window="evt.key === 'Enter' && @post('/api/lista')"
+							type="text"
+							class="input"
+							id="input_lista"
+							name="input_lista"
+							placeholder="Criar lista"
+							required
+						/>
+					</div>
+				</div>
+				<div data-on-load="@get('/api/lista')">
+					<div id="lista_de_listas" class="container mx-auto"></div>
+				</div>
 			</div>
 		}
 	}
