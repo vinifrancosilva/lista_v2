@@ -1,0 +1,10 @@
+<div class=\"flex flex-col sm:flex-row justify-center items-center gap-4\" id=\"lista_de_listas\">
+</div>
+<div id=\"
+\" data-signals=\"{ editar_lista: false }\" class=\"card bg-base-200 shadow-sm sm:w-96 w-full\"><div class=\"card-body\"><h2 class=\"card-title\">
+</h2>
+<p>
+</p>
+<div class=\"card-actions justify-end\"><button data-on-click=\"
+\" class=\"btn btn-danger\">Edita</button> <button data-on-click=\"
+\" class=\"btn btn-danger\">Apaga</button></div></div></div>

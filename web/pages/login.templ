@@ -2,53 +2,63 @@ package pages
 
 import "github.com/vinifrancosilva/lista_v2/web/layouts"
 
+// TODO: migrar o html do login para fieldset do daisyui
 templ LoginPage() {
 	@layouts.Base("Autenticação") {
-		<div class="flex flex-col justify-center self-center h-full">
-			<div class="p-12 border text-base-content mx-auto rounded-2xl w-100 ">
-				<div class="mb-4">
-					<h3 class="font-semibold text-2xl text-gray-800">Login</h3>
-				</div>
-				<div class="space-y-5">
-					<div class="form-group">
-						<label for="usuario">Usuário</label>
-						<input
-							data-bind-usuario
-							data-ref-input_usuario
-							data-on-load="$input_usuario.focus()"
-							type="text"
-							class="input"
-							id="usuario"
-							name="usuario"
-							placeholder="usuario"
-							required
-						/>
+		<section class="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center p-4">
+			<div class="card w-full max-w-md shadow-2xl bg-white">
+				<div class="card-body p-10">
+					<div class="text-center mb-8">
+						<h1 class="text-3xl font-bold text-gray-800">Bem-vindo(a)</h1>
+						<p class="text-gray-500 mt-2">Faça login para acessar sua conta</p>
 					</div>
-					<div class="form-group">
-						<label for="senha">Senha</label>
-						<input
-							data-bind-senha
-							data-ref="input_senha"
-							data-on-keydown__window="evt.key === 'Enter' && @post('/login')"
-							type="password"
-							class="input"
-							id="senha"
-							name="senha"
-							placeholder="senha"
-							required
-						/>
-					</div>
-					<div>
+					<div class="space-y-5">
+						<div class="form-group">
+							<label class="label">
+								<span class="label-text text-gray-600">Usuário</span>
+							</label>
+							<input
+								data-bind-usuario
+								data-ref-input_usuario
+								data-on-load="$input_usuario.focus()"
+								type="text"
+								class="input input-bordered focus:input-primary focus:outline-none w-full"
+								id="usuario"
+								name="usuario"
+								placeholder="usuario"
+								required
+							/>
+						</div>
+						<div class="form-group">
+							<label class="label">
+								<span class="label-text text-gray-600">Senha</span>
+							</label>
+							<input
+								data-bind-senha
+								data-ref="input_senha"
+								data-on-keydown__window="evt.key === 'Enter' && @post('/login')"
+								type="password"
+								class="input input-bordered focus:input-primary focus:outline-none w-full"
+								id="senha"
+								name="senha"
+								placeholder="senha"
+								required
+							/>
+						</div>
 						<button
 							data-on-click="@post('/login')"
 							class="btn btn-primary w-full"
 						>
-							Login
+							Entrar	
 						</button>
 					</div>
+					<div class="divider my-4">ou</div>
+					<p class="text-center text-gray-500 mt-4">
+						Não tem uma conta? <a href="#" class="link link-primary">Cadastre-se</a>
+					</p>
 				</div>
 			</div>
 			<div id="erro"></div>
-		</div>
+		</section>
 	}
 }

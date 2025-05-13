@@ -11,14 +11,13 @@ templ Base(title string) {
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 			<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Inter:wght@100..900&family=Gideon+Roman:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet"/>
 			<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-			<link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico"/>
+			<link rel="icon" type="image/x-icon" href="/static/img/favicon.png"/>
 			// <script defer type="module" src="/static/index.js"></script>
-			<script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-beta.9/bundles/datastar.js"></script>
-			<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
-			<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-			<link href="https://cdn.jsdelivr.net/npm/daisyui@5.0.2/themes.css" rel="stylesheet" type="text/css"/>
+			<script defer type="module" src="/static/js/libs/datastar-1-0-0-beta-11-451cf4728ff6863d.js"></script>
+			<script defer type="module" src="/static/js/libs/choices.min.js"></script>
+			<link href="/static/css/index.css" rel="stylesheet" type="text/css"/>
 		</head>
-		<body class="flex flex-col h-screen">
+		<body>
 			{ children... }
 		</body>
 	</html>

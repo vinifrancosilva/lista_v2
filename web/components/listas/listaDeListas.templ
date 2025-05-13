@@ -1,0 +1,46 @@
+package listas_components
+
+import (
+	"fmt"
+	"github.com/vinifrancosilva/lista_v2/models"
+)
+
+templ ListaDeListas(listas []models.PegaListasRow) {
+	<div
+		class="flex flex-col sm:flex-row justify-center items-center gap-4"
+		id="lista_de_listas"
+	>
+		for _, lista := range listas {
+			@Lista(lista)
+		}
+	</div>
+}
+
+templ Lista(lista models.PegaListasRow) {
+	<div
+		id={ fmt.Sprintf("card_lista_id_%v", lista.ID) }
+		data-signals="{ editar_lista: false }"
+		class="card bg-base-200 shadow-sm sm:w-96 w-full"
+	>
+		<div class="card-body">
+			<h2 class="card-title">{ lista.Lista }</h2>
+			if lista.Descricao.Valid {
+				<p>{ lista.Descricao.String }</p>
+			}
+			<div class="card-actions justify-end">
+				<button
+					data-on-click={ fmt.Sprintf("$editar_lista=true; @patch('/api/lista/%v')", lista.ID) }
+					class="btn btn-danger"
+				>
+					Edita
+				</button>
+				<button
+					data-on-click={ fmt.Sprintf("@delete('/api/lista/%v')", lista.ID) }
+					class="btn btn-danger"
+				>
+					Apaga
+				</button>
+			</div>
+		</div>
+	</div>
+}

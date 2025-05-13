@@ -1,5 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS listas
-    AUTHORIZATION postgres
+    AUTHORIZATION vini
 ;
 
 CREATE TABLE IF NOT EXISTS listas.usuarios (
@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS listas.listas (
   descricao		  TEXT NULL,
   criado_em 		TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   atualizado_em	TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  FOREIGN KEY (usuario_id) REFERENCES listas.usuarios(id)
+  FOREIGN KEY (usuario_id) REFERENCES listas.usuarios(id),
+  UNIQUE (usuario_id, lista)
 )
 ;
 
