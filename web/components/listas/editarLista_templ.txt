@@ -1,0 +1,8 @@
+<div id=\"
+\" data-signals=\"{ editar_lista: false, cancelar_edicao: false }\" class=\"card bg-base-100 shadow-sm sm:w-96 w-full\"><div class=\"card-body\"><div class=\"flex flex-col gap-4 justify-center items-center border space-y-4 p-4 mx-4\"><div class=\"flex gap-4\"><div class=\"form-group\">
+<input data-signals-lista_editada=\"
+\" data-bind-lista_editada data-on-keydown__window=\"
+\" type=\"text\" class=\"input\" id=\"input_lista_editar\" name=\"input_lista_editar\" required></div></div><div data-show=\"$input_lista_erro !== &#39;&#39;\" role=\"alert\" class=\"alert alert-error alert-soft\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-6 w-6 shrink-0 stroke-current\" fill=\"none\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg> <span data-text=\"$input_lista_erro\"></span></div><textarea data-bind-descricao_editada class=\"textarea\" placeholder=\"Descrição\">
+</textarea></div><div class=\"card-actions justify-end\"><button data-on-click=\"
+\" class=\"btn btn-danger\">Salva</button> <button data-on-click=\"
+\" class=\"btn btn-danger\">Cancela</button></div></div></div>

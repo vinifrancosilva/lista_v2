@@ -32,6 +32,8 @@ func controleConexoesSSE() {
 		case subs := <-subscriberChan:
 			mapaControle[subs.Endpoint] = append(mapaControle[subs.Endpoint], subs.Channel)
 			fmt.Println("Subscribed: ", subs)
+			fmt.Println("Enviando evento para carregar:", subs.Endpoint)
+			subs.Channel <- struct{}{}
 
 		// quando fecha uma conexão SSE é feito um unsubscribe
 		case unsubs := <-unsubscriberChan:

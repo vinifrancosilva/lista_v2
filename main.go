@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -11,10 +10,13 @@ import (
 	"time"
 
 	"github.com/antonlindstrom/pgstore"
-	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/vinifrancosilva/lista_v2/models"
 )
 
 /*
@@ -29,15 +31,17 @@ x Configurar o sqlc
 -
 */
 var (
-	dbPool         *pgxpool.Pool
+	db             *sqlx.DB
 	pgSessionStore *pgstore.PGStore
 )
 
 func main() {
 	// Inicializa o banco de dados
-	dbPool, pgSessionStore = dbInit()
-	defer dbPool.Close()
+	// db, pgSessionStore = dbInit()
+	pgSessionStore = dbInit()
+	// defer db.Close()
 	defer pgSessionStore.Close()
+
 	// Run a background goroutine to clean up expired sessions from the database.
 	defer pgSessionStore.StopCleanup(pgSessionStore.Cleanup(time.Minute * 5))
 
@@ -55,7 +59,7 @@ func main() {
 
 	// Roda o controle de conexões SSE
 	go controleConexoesSSE()
-	go testaControleConexoesSSE()
+	// go testaControleConexoesSSE()
 
 	// Start server
 	if err := e.Start(":8888"); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -63,7 +67,7 @@ func main() {
 	}
 }
 
-func dbInit() (*pgxpool.Pool, *pgstore.PGStore) {
+func dbInit() *pgstore.PGStore {
 	// Gera as configurações do app a partir das variáveis de ambiente
 	appConfig := AppConfig{
 		DbUser:           os.Getenv("DB_USER"),
@@ -89,11 +93,11 @@ func dbInit() (*pgxpool.Pool, *pgstore.PGStore) {
 	)
 
 	// Conecta ao banco de dados
-	dbPool, err := pgxpool.New(context.Background(), dbURL)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
+	// dbPool, err := pgxpool.New(context.Background(), dbURL)
+	// if err != nil {
+	// 	fmt.Fprintf(os.Stderr, "unable to connect to database: %v\n", err)
+	// 	os.Exit(1)
+	// }
 
 	// Cria uma store
 	store, err := pgstore.NewPGStore(dbURL, appConfig.SessionSecretKeyByte())
@@ -101,12 +105,24 @@ func dbInit() (*pgxpool.Pool, *pgstore.PGStore) {
 		log.Fatalf("falha na criação da session store: %v", err)
 	}
 
-	return dbPool, store
+	err = models.DBInit(dbURL)
+	if err != nil {
+		log.Fatalf("falha na conexão com o PostgreSQL: %v", err)
+	}
+
+	return store
 }
 
 func testaControleConexoesSSE() {
 	ticker := time.NewTicker(5 * time.Second)
 	for range ticker.C {
 		publisherChan <- "/api/lista"
+	}
+}
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("erro ao ler arquivo .env: %v", err)
 	}
 }

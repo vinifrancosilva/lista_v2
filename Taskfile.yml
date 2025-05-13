@@ -2,8 +2,8 @@ version: "3"
 
 env:
   dotenv: [".env"]
-  POSTGRES_URL: "postgres://postgres:postgres@127.0.0.1:5432/listas?sslmode=disable&search_path=listas"
-  STATIC_DIR: "web/static"
+  POSTGRES_URL: "postgres://vini:Tr@der1406B@uru@vininas.v6.rocks:5432/listas?sslmode=disable&search_path=listas"
+  STATIC_DIR: "static"
 
 tasks:
   tools:
@@ -24,7 +24,7 @@ tasks:
 
   build:styles:
     cmds:
-      - pnpm exec tailwindcss -c tailwind.config.js -i web/styles/styles.css -o $STATIC_DIR/index.css
+      - pnpm exec tailwindcss -i web/styles/styles.css -o $STATIC_DIR/css/index.css
     sources:
       - "./web/**/*.html"
       - "./web/**/*.ts"
@@ -47,8 +47,8 @@ tasks:
     deps:
       - build:templ
       # - build:esbuild
-      # - build:styles
-      - build:sqlc
+      - build:styles
+      # - build:sqlc
 
   # Use this task to debug your project with the delve debugger
   debug:
@@ -64,7 +64,7 @@ tasks:
 
   live:styles:
     cmds:
-      - pnpm exec tailwindcss -c tailwind.config.js -i web/styles/styles.css -o $STATIC_DIR/index.css --watch
+      - pnpm exec tailwindcss -i web/styles/styles.css -o $STATIC_DIR/css/index.css --watch
 
   # live:esbuild:
   #   cmds:
@@ -109,10 +109,10 @@ tasks:
 
   live:
     deps:
-      # - live:styles
+      - live:styles
       # - live:lit-html
       # - live:esbuild
-      - live:sqlc
+      # - live:sqlc
       - live:server
       - live:reload
       - live:templ
