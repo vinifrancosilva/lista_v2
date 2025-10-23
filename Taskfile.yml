@@ -2,7 +2,6 @@ version: "3"
 
 env:
   dotenv: [".env"]
-  POSTGRES_URL: "postgres://vini:Tr@der1406B@uru@vininas.v6.rocks:5432/listas?sslmode=disable&search_path=listas"
   STATIC_DIR: "static"
 
 tasks:
@@ -33,14 +32,6 @@ tasks:
     generates:
       - "{{.STATIC_DIR}}/index.js"
 
-  build:sqlc:
-    cmds:
-      - sqlc generate
-    sources:
-      - "db/*.sql"
-    generates:
-      - "models"
-
   build:
     cmds:
       - go build -ldflags "-s -w" -o listas
@@ -69,14 +60,6 @@ tasks:
   # live:esbuild:
   #   cmds:
   #     - pnpm exec esbuild web/libs/datastar/index.ts --sourcemap --bundle --outdir=$STATIC_DIR --watch
-
-  live:sqlc:
-    cmds:
-      - sqlc generate
-    sources:
-      - "db/*.sql"
-    generates:
-      - "models"
 
   live:server:
     env:
