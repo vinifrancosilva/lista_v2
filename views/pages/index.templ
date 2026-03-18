@@ -1,0 +1,41 @@
+package pages;
+
+import (
+	"github.com/vinifrancosilva/lista_v2/internal/models"
+	lc "github.com/vinifrancosilva/lista_v2/views/components/listas"
+	"github.com/vinifrancosilva/lista_v2/views/layouts"
+	"github.com/vinifrancosilva/lista_v2/views/structs"
+	components "github.com/vinifrancosilva/lista_v2/views/components"
+)
+
+var navbar = structs.NavBar{
+	Titulo: "Lista V2",
+	Itens: []structs.NavItem{
+		{Texto: "Listas", Link: "/"},
+		{Texto: "Categorias", Link: "/categorias"},
+		{Texto: "Logout", Link: "/logout"},
+	},
+}
+
+templ Index(titulo string, usuarios []models.Usuario) {
+	@layouts.Base(titulo) {
+		@components.NavbarDrawer(navbar) {
+			<div
+				data-signals="{input_lista_erro: ''}"
+				class="flex flex-col justify-center items-center m-4 p-4 gap-4"
+			>
+				<div class="space-y-4">
+					<h1 class="text-4xl font-bold">Listas V2</h1>
+				</div>
+			</div>
+			// <div class="flex flex-col gap-4 justify-center items-center border space-y-4 p-4 mx-4">
+			@lc.FormCriarLista(usuarios)
+			// </div>
+			<div class="flex flex-col sm:flex-row justify-center items-center m-4">
+				<div class="w-full" data-on-load="@get('/api/lista')">
+					<div id="lista_de_listas"></div>
+				</div>
+			</div>
+		}
+	}
+}

@@ -19,3 +19,8 @@ func DBInit(dbUrl string) error {
 
 	return nil
 }
+
+// GetDB retorna a instância do banco de dados
+func GetDB() *sqlx.DB {
+	return db
+}

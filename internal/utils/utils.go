@@ -1,11 +1,11 @@
-package main
+package utils
 
 import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
 
-func verificaSessao(c echo.Context) (int32, error) {
+func VerificaSessao(c echo.Context) (int32, error) {
 	sessao, err := session.Get("sessao", c)
 	if err != nil {
 		return 0, err

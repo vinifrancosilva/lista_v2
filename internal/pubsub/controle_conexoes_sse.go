@@ -3,21 +3,18 @@ package main
 import (
 	"fmt"
 	"slices"
+
+	"github.com/vinifrancosilva/lista_v2/internal/models"
 )
 
-type Subscriber struct {
-	Endpoint string
-	Channel  chan struct{}
-}
-
-var subscriberChan chan Subscriber
-var unsubscriberChan chan Subscriber
+var subscriberChan chan models.Subscriber
+var unsubscriberChan chan models.Subscriber
 var publisherChan chan string
 
 func controleConexoesSSE() {
 	// Subscribers Channels
-	subscriberChan = make(chan Subscriber)
-	unsubscriberChan = make(chan Subscriber)
+	subscriberChan = make(chan models.Subscriber)
+	unsubscriberChan = make(chan models.Subscriber)
 
 	// Publisher Channel
 	publisherChan = make(chan string)

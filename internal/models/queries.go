@@ -133,12 +133,6 @@ type PegaListaRow struct {
 // ORDER BY criado_em DESC
 // `
 
-type PegaListasRow struct {
-	ID        int32       `json:"id"`
-	Lista     string      `json:"lista"`
-	Descricao pgtype.Text `json:"descricao"`
-}
-
 // func (q *Queries) PegaListas(ctx context.Context, usuarioID int32) ([]PegaListasRow, error) {
 // 	rows, err := q.db.Query(ctx, pegaListas, usuarioID)
 // 	if err != nil {

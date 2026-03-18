@@ -3,6 +3,7 @@ version: "3"
 env:
   dotenv: [".env"]
   STATIC_DIR: "static"
+  PATH: "{{.HOME}}/go/bin:{{.PATH}}"
 
 tasks:
   tools:
@@ -25,16 +26,16 @@ tasks:
     cmds:
       - pnpm exec tailwindcss -i web/styles/styles.css -o $STATIC_DIR/css/index.css
     sources:
-      - "./web/**/*.html"
-      - "./web/**/*.ts"
-      - "./web/**/*.templ"
-      - "./web/**/*.go"
+      - "./views/**/*.html"
+      - "./views/**/*.ts"
+      - "./views/**/*.templ"
+      - "./views/**/*.go"
     generates:
       - "{{.STATIC_DIR}}/index.js"
 
   build:
     cmds:
-      - go build -ldflags "-s -w" -o listas
+      - go build -ldflags "-s -w" -o listas ./cmd/serve
     deps:
       - build:templ
       # - build:esbuild
@@ -51,7 +52,7 @@ tasks:
   # The `live:` tasks below are used together for "dev" builds and will live-reload your entire project
   live:templ:
     cmds:
-      - templ generate --watch --proxy="http://localhost:8080" --open-browser=false
+      - templ generate --watch --open-browser=false
 
   live:styles:
     cmds:
@@ -68,7 +69,7 @@ tasks:
       - |
         air  \
          -build.cmd "go build -tags dev -o tmp/bin/main" \
-         -build.bin "export $(grep -v '^#' .env | xargs); ./tmp/bin/main" \
+         -build.entrypoint "tmp/bin/main" \
          -build.delay "100" \
          -build.exclude_dir "postgres,data,node_modules,web/libs/datastar/node_modules,web/libs/lit-html/node_modules" \
          -build.include_ext "go" \
@@ -82,7 +83,7 @@ tasks:
       - |
         air \
         -build.cmd "templ generate --notify-proxy" \
-        -build.bin "true" \
+        -build.entrypoint "true" \
         -build.delay "300" \
         -build.exclude_dir "" \
         -build.include_dir "$STATIC_DIR" \
@@ -92,13 +93,9 @@ tasks:
 
   live:
     deps:
-      - live:styles
-      # - live:lit-html
-      # - live:esbuild
-      # - live:sqlc
+      - build:styles
+      - build:templ
       - live:server
-      - live:reload
-      - live:templ
 
   run:
     cmds:
