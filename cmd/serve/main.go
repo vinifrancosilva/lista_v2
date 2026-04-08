@@ -16,7 +16,11 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/vinifrancosilva/lista_v2/models"
+	"github.com/vinifrancosilva/lista_v2/config"
+	"github.com/vinifrancosilva/lista_v2/internal/handlers"
+	"github.com/vinifrancosilva/lista_v2/internal/models"
+	"github.com/vinifrancosilva/lista_v2/internal/pubsub"
+	"github.com/vinifrancosilva/lista_v2/internal/routes"
 )
 
 /*
@@ -48,17 +52,20 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
+	// Cria os PubSub Channels
+	pb := models.NewPubSubChannels()
+
 	// Middlewares
 	// e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(session.Middleware(pgSessionStore))
-	e.Use(middlewareEstaLogado)
+	e.Use(handlers.MiddlewareEstaLogado)
 
 	// Routes
-	defineRotas(e)
+	routes.DefineRotas(e, &pb)
 
 	// Roda o controle de conexões SSE
-	go controleConexoesSSE()
+	go pubsub.ControleConexoesSSE(&pb)
 	// go testaControleConexoesSSE()
 
 	// Start server
@@ -69,7 +76,7 @@ func main() {
 
 func dbInit() *pgstore.PGStore {
 	// Gera as configurações do app a partir das variáveis de ambiente
-	appConfig := AppConfig{
+	appConfig := config.AppConfig{
 		DbUser:           os.Getenv("DB_USER"),
 		DbPassword:       os.Getenv("DB_PASSWORD"),
 		DbHost:           os.Getenv("DB_HOST"),
@@ -113,10 +120,10 @@ func dbInit() *pgstore.PGStore {
 	return store
 }
 
-func testaControleConexoesSSE() {
+func testaControleConexoesSSE(pb *models.PubSubChanels) {
 	ticker := time.NewTicker(5 * time.Second)
 	for range ticker.C {
-		publisherChan <- "/api/lista"
+		pb.PublisherChan <- "/api/lista"
 	}
 }
 

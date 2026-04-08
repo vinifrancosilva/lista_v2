@@ -24,7 +24,7 @@ tasks:
 
   build:styles:
     cmds:
-      - pnpm exec tailwindcss -i web/styles/styles.css -o $STATIC_DIR/css/index.css
+      - pnpm exec tailwindcss -i views/styles/styles.css -o $STATIC_DIR/css/index.css
     sources:
       - "./views/**/*.html"
       - "./views/**/*.ts"
@@ -35,7 +35,7 @@ tasks:
 
   build:
     cmds:
-      - go build -ldflags "-s -w" -o listas ./cmd/serve
+      - go build -ldflags "-s -w" -o listas cmd/serve
     deps:
       - build:templ
       # - build:esbuild
@@ -56,7 +56,7 @@ tasks:
 
   live:styles:
     cmds:
-      - pnpm exec tailwindcss -i web/styles/styles.css -o $STATIC_DIR/css/index.css --watch
+      - pnpm exec tailwindcss -i views/styles/styles.css -o $STATIC_DIR/css/index.css --watch
 
   # live:esbuild:
   #   cmds:
@@ -68,7 +68,7 @@ tasks:
     cmds:
       - |
         air  \
-         -build.cmd "go build -tags dev -o tmp/bin/main" \
+         -build.cmd "go build -tags dev -o tmp/bin/main cmd/serve" \
          -build.entrypoint "tmp/bin/main" \
          -build.delay "100" \
          -build.exclude_dir "postgres,data,node_modules,web/libs/datastar/node_modules,web/libs/lit-html/node_modules" \
@@ -82,7 +82,7 @@ tasks:
     cmds:
       - |
         air \
-        -build.cmd "templ generate --notify-proxy" \
+        -build.cmd "templ generate" \
         -build.entrypoint "true" \
         -build.delay "300" \
         -build.exclude_dir "" \
@@ -93,9 +93,9 @@ tasks:
 
   live:
     deps:
+      - live:server
       - build:styles
       - build:templ
-      - live:server
 
   run:
     cmds:

@@ -1,4 +1,4 @@
-package main
+package pubsub
 
 import (
 	"fmt"
@@ -7,18 +7,7 @@ import (
 	"github.com/vinifrancosilva/lista_v2/internal/models"
 )
 
-var subscriberChan chan models.Subscriber
-var unsubscriberChan chan models.Subscriber
-var publisherChan chan string
-
-func controleConexoesSSE() {
-	// Subscribers Channels
-	subscriberChan = make(chan models.Subscriber)
-	unsubscriberChan = make(chan models.Subscriber)
-
-	// Publisher Channel
-	publisherChan = make(chan string)
-
+func ControleConexoesSSE(pubsub *models.PubSubChanels) {
 	// Mapa de controle
 	mapaControle := make(map[string][]chan struct{})
 
@@ -26,14 +15,14 @@ func controleConexoesSSE() {
 	for {
 		select {
 		// quando abre uma conexão SSE é feito um subscribe
-		case subs := <-subscriberChan:
+		case subs := <-pubsub.SubscriberChan:
 			mapaControle[subs.Endpoint] = append(mapaControle[subs.Endpoint], subs.Channel)
 			fmt.Println("Subscribed: ", subs)
 			fmt.Println("Enviando evento para carregar:", subs.Endpoint)
 			subs.Channel <- struct{}{}
 
 		// quando fecha uma conexão SSE é feito um unsubscribe
-		case unsubs := <-unsubscriberChan:
+		case unsubs := <-pubsub.UnsubscriberChan:
 			if _, ok := mapaControle[unsubs.Endpoint]; ok {
 				for i, ch := range mapaControle[unsubs.Endpoint] {
 					if ch == unsubs.Channel {
@@ -46,7 +35,7 @@ func controleConexoesSSE() {
 			fmt.Println("Unsubscribed: ", unsubs)
 
 		// quando há uma mudança no banco de dados é feito um publish e o endpoint fica encarregado de reenviar a informação que lhe compete
-		case endpoint := <-publisherChan:
+		case endpoint := <-pubsub.PublisherChan:
 			fmt.Println("Recebido evento para publicação: ", endpoint)
 			c := 0
 			if _, ok := mapaControle[endpoint]; ok {

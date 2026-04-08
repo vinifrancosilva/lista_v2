@@ -1,31 +1,33 @@
-package main
+package routes
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/vinifrancosilva/lista_v2/internal/handlers"
+	"github.com/vinifrancosilva/lista_v2/internal/models"
 )
 
-func defineRotas(e *echo.Echo) {
+func DefineRotas(e *echo.Echo, pb *models.PubSubChanels) {
 	// Static
 	e.Static("/static", "static")
 
 	// Index
-	e.GET("/", handlerIndex)
+	e.GET("/", handlers.HandlerIndex)
 
 	// Login / Logout
-	e.GET("/login", handlerLoginPage)
-	e.POST("/login", handlerLoginPost)
-	e.GET("/logout", handlerLogout)
+	e.GET("/login", handlers.HandlerLoginPage)
+	e.POST("/login", handlers.HandlerLoginPost)
+	e.GET("/logout", handlers.HandlerLogout)
 
 	// Categorias
-	e.GET("/categorias", handlerFake)
+	e.GET("/categorias", handlers.HandlerFake)
 
 	// API Group
 	g := e.Group("/api")
 
 	// API da Lista
-	g.GET("/lista", handlerApiListaGet)
-	g.POST("/lista", handlerApiListaPost)
-	g.PATCH("/lista/:id", handlerApiListaPatch)
-	g.DELETE("/lista/:id", handlerApiListaDelete)
-
+	HandlerLista := handlers.NewHandlerLista(pb)
+	g.GET("/lista", HandlerLista.ApiListaGet)
+	g.POST("/lista", HandlerLista.ApiListaPost)
+	g.PATCH("/lista/:id", HandlerLista.ApiListaPatch)
+	g.DELETE("/lista/:id", HandlerLista.ApiListaDelete)
 }

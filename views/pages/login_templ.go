@@ -8,7 +8,7 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/vinifrancosilva/lista_v2/web/layouts"
+import "github.com/vinifrancosilva/lista_v2/views/layouts"
 
 // TODO: migrar o html do login para fieldset do daisyui
 func LoginPage() templ.Component {
