@@ -1,9 +1,11 @@
 version: "3"
 
+dotenv: ['.env']
 env:
-  dotenv: [".env"]
   STATIC_DIR: "static"
   PATH: "{{.HOME}}/go/bin:{{.PATH}}"
+  # POSTGRES_URL: "postgres://{{.ENV.DB_USER}}:{{.ENV.DB_PASSWORD}}@{{.ENV.DB_HOST}}:{{.ENV.DB_PORT}}/{{.ENV.DB_NAME}}?sslmode={{.ENV.DB_SSLMODE}}&search_path={{.ENV.DB_SEARCH_PATH}}"
+  POSTGRES_URL: "postgres://postgres:postgres@localhost:5432/vinifranco?sslmode=disable&search_path=listas"
 
 tasks:
   tools:
@@ -18,9 +20,9 @@ tasks:
     cmds:
       - templ generate
     sources:
-      - "**/*.templ"
+      - "./views/**/*.templ"
     generates:
-      - "**/*_templ.go"
+      - "./views/**/*_templ.go"
 
   build:styles:
     cmds:
@@ -31,11 +33,11 @@ tasks:
       - "./views/**/*.templ"
       - "./views/**/*.go"
     generates:
-      - "{{.STATIC_DIR}}/index.js"
+      - "{{.STATIC_DIR}}/css/index.css"
 
   build:
     cmds:
-      - go build -ldflags "-s -w" -o listas cmd/serve
+      - go build -ldflags "-s -w" -o listas .
     deps:
       - build:templ
       # - build:esbuild
@@ -66,36 +68,14 @@ tasks:
     env:
       dotenv: [".env"]
     cmds:
-      - |
-        air  \
-         -build.cmd "go build -tags dev -o tmp/bin/main cmd/serve" \
-         -build.entrypoint "tmp/bin/main" \
-         -build.delay "100" \
-         -build.exclude_dir "postgres,data,node_modules,web/libs/datastar/node_modules,web/libs/lit-html/node_modules" \
-         -build.include_ext "go" \
-         -build.stop_on_error "false" \
-         -build.send_interrupt "true" \
-         -build.kill_delay "200" \
-         -misc.clean_on_exit "true"
-
-  live:reload:
-    cmds:
-      - |
-        air \
-        -build.cmd "templ generate" \
-        -build.entrypoint "true" \
-        -build.delay "300" \
-        -build.exclude_dir "" \
-        -build.include_dir "$STATIC_DIR" \
-        -build.include_ext "js,css" \
-        -build.send_interrupt "true" \
-        -build.kill_delay "200"
+      - air
 
   live:
+    parallel: true
     deps:
       - live:server
-      - build:styles
-      - build:templ
+      - live:styles
+      - live:templ
 
   run:
     cmds:
@@ -107,6 +87,12 @@ tasks:
     cmds:
       - migrate create -ext sql -dir db/migrations -seq {{.CLI_ARGS}}
 
-  roda_migration:
+  migration_up:
     cmds:
-      - migrate -database $POSTGRES_URL -path db/migrations up
+      # - migrate -path db/migrations -database "{{.POSTGRES_URL}}" up
+      - migrate -path db/migrations -database "{{.POSTGRES_URL}}" up
+
+  migration_down:
+    cmds:
+      # - migrate -path db/migrations -database "{{.POSTGRES_URL}}" up
+      - migrate -path db/migrations -database "{{.POSTGRES_URL}}" down

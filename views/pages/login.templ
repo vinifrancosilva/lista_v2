@@ -18,9 +18,9 @@ templ LoginPage() {
 								<span class="label-text text-gray-600">Usuário</span>
 							</label>
 							<input
-								data-bind-usuario
-								data-ref-input_usuario
-								data-on-load="$input_usuario.focus()"
+								data-bind:usuario
+								data-ref="input_usuario"
+								data-on:load="$input_usuario.focus()"
 								type="text"
 								class="input input-bordered focus:input-primary focus:outline-none w-full"
 								id="usuario"
@@ -34,9 +34,9 @@ templ LoginPage() {
 								<span class="label-text text-gray-600">Senha</span>
 							</label>
 							<input
-								data-bind-senha
+								data-bind:senha
 								data-ref="input_senha"
-								data-on-keydown__window="evt.key === 'Enter' && @post('/login')"
+								data-on:keydown__window="evt.key === 'Enter' && @post('/login')"
 								type="password"
 								class="input input-bordered focus:input-primary focus:outline-none w-full"
 								id="senha"
@@ -46,7 +46,7 @@ templ LoginPage() {
 							/>
 						</div>
 						<button
-							data-on-click="@post('/login')"
+							data-on:click="@post('/login')"
 							class="btn btn-primary w-full"
 						>
 							Entrar	

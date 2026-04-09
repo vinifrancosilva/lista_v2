@@ -40,29 +40,27 @@ func HandlerLoginPost(c echo.Context) error {
 	err := usuario.TestaLogin(context.Background())
 	if err != nil && err != pgx.ErrNoRows {
 		// se o erro for genérico, deu erro na comunicação com o banco
-		datastar.NewSSE(
-			c.Response().Writer,
-			c.Request(),
-		).MergeFragmentTempl(
+		sse := datastar.NewSSE(c.Response().Writer, c.Request())
+		sse.MergeFragmentTempl(
 			login.MsgErro(
 				fmt.Sprintf("autenticação falhou: %v", err),
 			),
 			datastar.WithUseViewTransitions(true),
 		)
 
-		return c.NoContent(http.StatusOK)
+		return nil
+		//return c.NoContent(http.StatusOK)
 	}
 	if err == pgx.ErrNoRows {
 		// se o erro for NoRows, foi passado usuário e senha inválido
-		datastar.NewSSE(
-			c.Response().Writer,
-			c.Request(),
-		).MergeFragmentTempl(
+		sse := datastar.NewSSE(c.Response().Writer, c.Request())
+		sse.MergeFragmentTempl(
 			login.MsgErro("Usuário ou senha inválidos"),
 			datastar.WithUseViewTransitions(true),
 		)
 
-		return c.NoContent(http.StatusOK)
+		return nil
+		//return c.NoContent(http.StatusOK)
 	}
 
 	// Login com sucesso
@@ -82,7 +80,25 @@ func HandlerLoginPost(c echo.Context) error {
 	}
 
 	// redireciona para a index
-	return datastar.NewSSE(c.Response().Writer, c.Request()).Redirect("/")
+	// sse := datastar.NewSSE(c.Response().Writer, c.Request())
+	// sse := datastar.NewSSE(c.Response().Writer, c.Request())
+	// sse.MergeFragmentTempl(
+	// 	login.MsgErro("Usuário ou senha inválidos"),
+	// 	datastar.WithUseViewTransitions(true),
+	// )
+	// return nil
+	// if err := sse.Redirect("/"); err != nil {
+	// 	log.Printf("login: failed redirect: %v", err)
+	// }
+	//return sse.Redirect("/"
+
+	return c.Redirect(http.StatusOK, "/")
+
+	// if err := sse.ConsoleLog("teste... tá chegando?"); err != nil {
+	// 	log.Printf("login: failed console log: %v", err)
+	// }
+
+	// return nil
 }
 
 func HandlerLogout(c echo.Context) error {
