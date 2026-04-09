@@ -1,6 +1,8 @@
 services:
   postgres:
-    user: "${DOCKER_UID}"
+    # user: "${DOCKER_UID}"
+    # user: "${UID}:${GID}" # Usa as variáveis do seu sistema
+    # user: "1000:1000"
     image: postgres:latest
     container_name: postgres
     environment:
@@ -11,7 +13,9 @@ services:
       PGTZ: America/Sao_Paulo
     ports:
       - "5432:5432"
-    restart: no
+    volumes:
+      - ./postgres/data:/var/lib/postgresql
+    restart: unless-stopped
     networks:
       - postgres-network
 
@@ -28,7 +32,7 @@ services:
       - postgres
     volumes:
       - ./postgres/pgadmin:/var/lib/pgadmin
-    restart: no
+    restart: unless-stopped
     networks:
       - postgres-network
 

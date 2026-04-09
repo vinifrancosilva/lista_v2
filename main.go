@@ -11,7 +11,6 @@ import (
 
 	"github.com/antonlindstrom/pgstore"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -35,7 +34,7 @@ x Configurar o sqlc
 -
 */
 var (
-	db             *sqlx.DB
+	// db             *sqlx.DB
 	pgSessionStore *pgstore.PGStore
 )
 
@@ -88,8 +87,15 @@ func dbInit() *pgstore.PGStore {
 	}
 
 	// Cria a string de conexão com o banco de dados
+	// searchPath := appConfig.DbSearchPath
+	// if searchPath == "" {
+	// 	searchPath = "public"
+	// }
+	// options := url.QueryEscape(fmt.Sprintf("-c search_path=%s", searchPath))
+
 	dbURL := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s&search_path=%s",
+		// "postgres://%s:%s@%s:%s/%s?sslmode=%s&options=%s",
 		appConfig.DbUser,
 		appConfig.DbPassword,
 		appConfig.DbHost,
@@ -97,14 +103,8 @@ func dbInit() *pgstore.PGStore {
 		appConfig.DbName,
 		appConfig.DbSSLMode,
 		appConfig.DbSearchPath,
+		// options,
 	)
-
-	// Conecta ao banco de dados
-	// dbPool, err := pgxpool.New(context.Background(), dbURL)
-	// if err != nil {
-	// 	fmt.Fprintf(os.Stderr, "unable to connect to database: %v\n", err)
-	// 	os.Exit(1)
-	// }
 
 	// Cria uma store
 	store, err := pgstore.NewPGStore(dbURL, appConfig.SessionSecretKeyByte())
