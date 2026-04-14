@@ -1,0 +1,9 @@
+- esse é um projeto de uma aplicação web para gerenciamento de listas. Podem ser listas de compras, de tarefas, etc. Listas de modo geral.
+- a idéia geral é ter um tela para o gerenciamento das listas, outra para o gerenciamento de categorias que poderão ser usadas pelas listas e outra, a principal, que é a tela para inserir, apagar e concluir itens em uma lista específica.
+- a stack de tecnologia utilizada é o Golang, Echo framework, templ para template html, sqlx, postgres como database com seu driver pgx e Datastar v1 rc8 (https://github.com/starfederation/datastar/) para reatividade e hipermedia no frontend, juntamente com seu SDK (https://github.com/starfederation/datastar-go). Para o cuidar do html diretamente, usamos o DaisyUI na v5.5.19. Usando tbm gorilla-sessions com a store no postgres (pgstore).
+- o projeto já está começado, quero continuá-lo. Já temos várias coisas. Criei um sistema de pubsub para entregar em tempo real atualizações de listas, categorias e itens usando o Datastar no frontend. a idéia é que todos os usuários que estejam na mesma tela, recebam as atualizações uns dos outros e essa estrutura já está pronta.
+    - a tela de login já está feita, o login funciona. Já tem middleware que cuida das rotas privadas, redirecionando para o login em caso de não ter sido realizado login ainda.
+    - a tela principal com a lista de listas, tbm já existe e é a partir daí que iremos continuar o projeto.
+- o arquivo LISTAS.md é o que descreverá como será a view / model / controller de listas e como fazer o CRUD.
+- o arquivo CATEGORIAS.md é o que descreverá como fazer view / model / controller e o CRUD de categorias. 
+- o arquivo ITENS.md é o que cuidará da view / model / controller para os itens.
