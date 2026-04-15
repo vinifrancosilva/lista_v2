@@ -1,0 +1,130 @@
+package listas_components
+
+import (
+	"fmt"
+	"github.com/vinifrancosilva/lista_v2/internal/models"
+)
+
+func isShared(userID int32, sharedIDs []int32) bool {
+	for _, id := range sharedIDs {
+		if id == userID {
+			return true
+		}
+	}
+	return false
+}
+
+func isLinked(catID int32, linkedIDs []int32) bool {
+	for _, id := range linkedIDs {
+		if id == catID {
+			return true
+		}
+	}
+	return false
+}
+
+templ EditarLista(lista *models.Lista, usuarios []models.Usuario, compartilhados []int32, categorias []models.Categoria, categoriasVinculadas []int32) {
+	<div id="modal_container" class="modal modal-open">
+		<div
+			class="modal-box max-w-lg"
+			data-signals={ fmt.Sprintf("{lista_id: %v, lista_nome: '%s', lista_descricao: '%s'}", lista.ID, lista.Lista, lista.Descricao.String) }
+		>
+			<div class="flex justify-between items-center mb-6">
+				<h3 class="font-bold text-lg">Editar Lista</h3>
+				<button
+					class="btn btn-sm btn-circle btn-ghost"
+					data-on-click="$modal_container.remove()"
+				>✕</button>
+			</div>
+
+			<div class="space-y-6">
+				<!-- Nome da Lista -->
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text font-semibold">Nome da Lista</span>
+					</label>
+					<input
+						type="text"
+						data-bind-lista_nome
+						class="input input-bordered w-full"
+						data-on-input.debounce_500ms={ fmt.Sprintf("@patch('/api/lista/%v')", lista.ID) }
+					/>
+				</div>
+
+				<!-- Descrição -->
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text font-semibold">Descrição</span>
+					</label>
+					<textarea
+						data-bind-lista_descricao
+						class="textarea textarea-bordered h-24 w-full"
+						data-on-input.debounce_500ms={ fmt.Sprintf("@patch('/api/lista/%v')", lista.ID) }
+					></textarea>
+				</div>
+
+				<!-- Categorias -->
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text font-semibold">Categorias</span>
+					</label>
+					<div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-base-200">
+						if len(categorias) == 0 {
+							<p class="text-sm opacity-50 italic">Nenhuma categoria criada.</p>
+						}
+						for _, cat := range categorias {
+							<label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-base-300 rounded-lg">
+								<input
+									type="checkbox"
+									class="checkbox checkbox-sm checkbox-secondary"
+									checked?={ isLinked(cat.ID, categoriasVinculadas) }
+									data-on-change={ fmt.Sprintf("@patch('/api/lista/%v', {toggle_categoria: %v})", lista.ID, cat.ID) }
+								/>
+								<span class="text-sm">{ cat.Categoria }</span>
+							</label>
+						}
+					</div>
+				</div>
+
+				<!-- Compartilhamento -->
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text font-semibold">Compartilhar com</span>
+					</label>
+					<div class="space-y-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-base-200">
+						if len(usuarios) == 0 {
+							<p class="text-sm opacity-50 italic">Nenhum outro usuário disponível.</p>
+						}
+						for _, user := range usuarios {
+							<label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-base-300 rounded-lg">
+								<input
+									type="checkbox"
+									class="checkbox checkbox-primary"
+									checked?={ isShared(user.ID, compartilhados) }
+									data-on-change={ fmt.Sprintf("@patch('/api/lista/%v', {toggle_user: %v})", lista.ID, user.ID) }
+								/>
+								<span class="text-sm">{ user.Nome.String }</span>
+							</label>
+						}
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-action">
+				<div class="flex items-center gap-2 text-success opacity-0 transition-opacity duration-300" id="save-indicator">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-5">
+						<path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+					</svg>
+					<span class="text-sm font-medium">Salvo automaticamente</span>
+				</div>
+				<button
+					class="btn btn-primary"
+					data-on-click="$modal_container.remove()"
+				>
+					Fechar
+				</button>
+			</div>
+		</div>
+		<div class="modal-backdrop" data-on-click="$modal_container.remove()"></div>
+	</div>
+}

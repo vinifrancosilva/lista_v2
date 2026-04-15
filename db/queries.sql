@@ -11,9 +11,22 @@ ORDER BY usuario
 ;
 
 -- name: PegaListas :many
-SELECT id, lista, descricao FROM listas.listas
-WHERE usuario_id = @usuario_id
-ORDER BY criado_em DESC
+SELECT 
+  l.id,
+  l.usuario_id,
+  l.lista,
+  l.descricao,
+  COALESCE(COUNT(i.id), 0) as total,
+  COALESCE(SUM(CASE WHEN i.feito = true THEN 1 ELSE 0 END), 0) as concluidos
+FROM listas.listas l
+LEFT JOIN listas.items i ON l.id = i.lista_id
+WHERE l.usuario_id = @usuario_id 
+  OR l.id IN (
+    SELECT lista_id FROM listas.compartilhamentos 
+    WHERE usuario_id = @usuario_id
+  )
+GROUP BY l.id, l.usuario_id, l.lista, l.descricao
+ORDER BY l.criado_em DESC
 ;
 
 -- name: PegaLista :one

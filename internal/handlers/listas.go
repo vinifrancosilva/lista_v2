@@ -6,8 +6,10 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
-	datastar "github.com/starfederation/datastar/sdk/go"
+	"github.com/starfederation/datastar-go/datastar"
+
 	"github.com/vinifrancosilva/lista_v2/internal/models"
 	"github.com/vinifrancosilva/lista_v2/internal/utils"
 	lc "github.com/vinifrancosilva/lista_v2/views/components/listas"
@@ -27,9 +29,9 @@ func NewHandlerLista(pb *models.PubSubChanels) *HandlerLista {
 }
 
 // Get - abre o canal SSE que recebe todas as mudancas realizadas na lista
-func (h *HandlerLista) ApiListaGet(c echo.Context) error {
+func (h *HandlerLista) ListaGet(c echo.Context) error {
 	// pega usuario da sessao
-	usuario_id, err := utils.VerificaSessao(c)
+	usuario, err := utils.VerificaSessao(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -56,21 +58,20 @@ func (h *HandlerLista) ApiListaGet(c echo.Context) error {
 			return nil
 		case <-ch:
 			// antes de enviar qualquer update, verifica se a sessão ainda está válida
-			usuario_id_check, err := utils.VerificaSessao(c)
+			usuario_check, err := utils.VerificaSessao(c)
 			if err != nil {
 				h.PubSub.UnsubscriberChan <- subs
 				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
 			// se não estiver válida, redireciona pra login
-			if usuario_id_check == 0 {
+			if usuario_check.ID == 0 {
 				h.PubSub.UnsubscriberChan <- subs
 				sse.Redirect("/login")
 				return nil
 			}
 
 			// se estiver válida, pega as listas atualizadas
-			usuario := models.Usuario{ID: usuario_id}
-			listas, err := usuario.PegaListas(c.Request().Context())
+			listas, err := models.PegaListas(c.Request().Context(), &usuario)
 			if err != nil {
 				h.PubSub.UnsubscriberChan <- subs
 				sse.Redirect("/login")
@@ -79,22 +80,21 @@ func (h *HandlerLista) ApiListaGet(c echo.Context) error {
 
 			// envia pro front com sse.MergeFragmentTempl()
 			vt := datastar.WithUseViewTransitions(true)
-			sse.MergeFragmentTempl(lc.ListaDeListas(listas), vt)
+			sse.PatchElementTempl(lc.ListaDeListas(listas), vt)
 		}
 	}
 }
 
-func (h *HandlerLista) ApiListaPost(c echo.Context) error {
+func (h *HandlerLista) ListaCreatePost(c echo.Context) error {
 	// pega usuario da sessao
-	usuario_id, err := utils.VerificaSessao(c)
+	usuario, err := utils.VerificaSessao(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	// para manter separation os concerns, cria uma DTO pra receber e validar info do front
 	listaPostDTO := struct {
-		Lista     string `json:"lista" validate:"required"`
-		Descricao string `json:"descricao"`
+		Lista string `json:"lista" validate:"required"`
 	}{}
 
 	// faz o parse dos dados do datastar
@@ -109,17 +109,14 @@ func (h *HandlerLista) ApiListaPost(c echo.Context) error {
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
 			sse := datastar.NewSSE(c.Response().Writer, c.Request())
-			return sse.MergeSignals(
-				[]byte(`{input_lista_erro: "Nome da lista é necessário..."}`),
-			)
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"input_lista_erro": "Nome da lista é necessário...",
+			})
 		}
 	}
 
-	// cria usuario struct com o ID
-	usuario := models.Usuario{ID: usuario_id}
-
 	// insere no banco as informações validadas
-	err = usuario.InsereLista(c.Request().Context(), listaPostDTO.Lista, listaPostDTO.Descricao)
+	err = models.InsereLista(c.Request().Context(), listaPostDTO.Lista, &usuario)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -127,7 +124,7 @@ func (h *HandlerLista) ApiListaPost(c echo.Context) error {
 	// limpa msg de erro caso exista
 	sse := datastar.NewSSE(c.Response().Writer, c.Request())
 	limpa_erro := `{input_lista_erro: ''}`
-	sse.MergeSignals([]byte(limpa_erro))
+	sse.PatchSignals([]byte(limpa_erro))
 
 	// manda evento pra publicação
 	h.PubSub.PublisherChan <- "listas"
@@ -137,7 +134,7 @@ func (h *HandlerLista) ApiListaPost(c echo.Context) error {
 
 func (h *HandlerLista) ApiListaDelete(c echo.Context) error {
 	// pega usuario da sessao
-	usuario_id, err := utils.VerificaSessao(c)
+	usuario, err := utils.VerificaSessao(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -151,7 +148,7 @@ func (h *HandlerLista) ApiListaDelete(c echo.Context) error {
 	}
 
 	// faz o delete
-	err = models.DeletaLista(c.Request().Context(), listaIDInt32, usuario_id)
+	err = models.DeletaLista(c.Request().Context(), listaIDInt32, &usuario)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -170,7 +167,7 @@ func (h *HandlerLista) ApiListaPatch(c echo.Context) error {
 	}{}
 
 	// pega usuario da sessao
-	usuario_id, err := utils.VerificaSessao(c)
+	usuario, err := utils.VerificaSessao(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -181,8 +178,27 @@ func (h *HandlerLista) ApiListaPatch(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	// cria uma struct do validator pra validar os dados recebidos
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(&SignalsAndParams)
+	if err != nil {
+		var validateErrs validator.ValidationErrors
+		if errors.As(err, &validateErrs) {
+			sse := datastar.NewSSE(c.Response().Writer, c.Request())
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"input_lista_erro": "Nome da lista é necessário...",
+			})
+		}
+	}
+
+	lista := models.Lista{
+		ID:        SignalsAndParams.ListaID,
+		Lista:     SignalsAndParams.Lista,
+		Descricao: pgtype.Text{String: SignalsAndParams.Descricao, Valid: true},
+	}
+
 	// faz o update
-	err = models.AtualizaLista(c.Request().Context(), SignalsAndParams.ListaID, usuario_id, SignalsAndParams.Lista, SignalsAndParams.Descricao)
+	err = models.AtualizaLista(c.Request().Context(), &lista, &usuario)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

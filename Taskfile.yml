@@ -37,7 +37,7 @@ tasks:
 
   build:
     cmds:
-      - go build -ldflags "-s -w" -o listas .
+      - go build -ldflags "-s -w" -o lista_v2 .
     deps:
       - build:templ
       # - build:esbuild
@@ -47,7 +47,7 @@ tasks:
   # Use this task to debug your project with the delve debugger
   debug:
     cmds:
-      - dlv exec listas
+      - dlv exec lista_v2
     deps:
       - build
 
@@ -59,10 +59,6 @@ tasks:
   live:styles:
     cmds:
       - pnpm exec tailwindcss -i views/styles/styles.css -o $STATIC_DIR/css/index.css --watch
-
-  # live:esbuild:
-  #   cmds:
-  #     - pnpm exec esbuild web/libs/datastar/index.ts --sourcemap --bundle --outdir=$STATIC_DIR --watch
 
   live:server:
     env:
@@ -79,7 +75,7 @@ tasks:
 
   run:
     cmds:
-      - ./listas
+      - ./lista_v2
     deps:
       - build
 

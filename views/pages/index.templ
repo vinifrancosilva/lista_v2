@@ -32,7 +32,7 @@ templ Index(titulo string, usuarios []models.Usuario) {
 			@lc.FormCriarLista(usuarios)
 			// </div>
 			<div class="flex flex-col sm:flex-row justify-center items-center m-4">
-				<div class="w-full" data-on-load="@get('/api/lista')">
+				<div class="w-full" data-on:load="@get('/api/lista')">
 					<div id="lista_de_listas"></div>
 				</div>
 			</div>

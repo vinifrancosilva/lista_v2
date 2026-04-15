@@ -15,19 +15,19 @@ func MiddlewareEstaLogado(next echo.HandlerFunc) echo.HandlerFunc {
 			return next(c)
 		}
 		// verifica se existe sessão
-		usuario_id, err := utils.VerificaSessao(c)
+		usuario, err := utils.VerificaSessao(c)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
 		// se não existe sessão, não está logado, redireciona pra login
-		if usuario_id == 0 && c.Request().URL.Path != "/login" {
+		if usuario.ID == 0 && c.Request().URL.Path != "/login" {
 			// redireciona para a pagina de login caso não esteja logado
 			return c.Redirect(http.StatusFound, "/login")
 		}
 
 		// se já está logado e está tentando entrar na página de login, rediciona pra index
-		if usuario_id > 0 && c.Request().URL.Path == "/login" {
+		if usuario.ID > 0 && c.Request().URL.Path == "/login" {
 			return c.Redirect(http.StatusFound, "/")
 		}
 

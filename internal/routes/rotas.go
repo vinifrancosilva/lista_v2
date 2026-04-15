@@ -26,8 +26,8 @@ func DefineRotas(e *echo.Echo, pb *models.PubSubChanels) {
 
 	// API da Lista
 	HandlerLista := handlers.NewHandlerLista(pb)
-	g.GET("/lista", HandlerLista.ApiListaGet)
-	g.POST("/lista", HandlerLista.ApiListaPost)
+	g.GET("/lista", HandlerLista.ListaGet)
+	g.POST("/lista/create", HandlerLista.ListaCreatePost)
 	g.PATCH("/lista/:id", HandlerLista.ApiListaPatch)
 	g.DELETE("/lista/:id", HandlerLista.ApiListaDelete)
 }
