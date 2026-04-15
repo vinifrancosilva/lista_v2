@@ -26,7 +26,7 @@ templ Lista(lista models.ListaDbSelect) {
 				<h2 class="card-title">{ lista.Lista }</h2>
 				<div class="flex gap-2">
 					<button
-						data-on-click={ fmt.Sprintf("@get('/api/lista/%v/edit')", lista.ID) }
+						data-on:click={ fmt.Sprintf("@get('/api/lista/%v/edit')", lista.ID) }
 						class="btn btn-ghost btn-sm btn-square"
 						title="Editar"
 					>
@@ -35,7 +35,7 @@ templ Lista(lista models.ListaDbSelect) {
 						</svg>
 					</button>
 					<button
-						data-on-click={ fmt.Sprintf("confirm('Deseja realmente apagar esta lista?') && @delete('/api/lista/%v')", lista.ID) }
+						data-on:click={ fmt.Sprintf("confirm('Deseja realmente apagar esta lista?') && @delete('/api/lista/%v')", lista.ID) }
 						class="btn btn-ghost btn-sm btn-square text-error"
 						title="Excluir"
 					>

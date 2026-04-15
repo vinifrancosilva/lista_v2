@@ -130,10 +130,9 @@ func (h *HandlerLista) ListaCreatePost(c echo.Context) error {
 		})
 	}
 
-	// limpa msg de erro caso exista e mostra msg de sucesso
+	// limpa msg de erro caso exista
 	sse.MarshalAndPatchSignals(map[string]any{
-		"input_lista_erro":    "",
-		"input_lista_sucesso": "Lista criada com sucesso!",
+		"input_lista_erro": "",
 	})
 
 	// manda evento pra publicação
@@ -142,7 +141,9 @@ func (h *HandlerLista) ListaCreatePost(c echo.Context) error {
 	return nil
 }
 
-func (h *HandlerLista) ApiListaDelete(c echo.Context) error {
+func (h *HandlerLista) ListaDelete(c echo.Context) error {
+	var lista models.Lista
+
 	// pega usuario da sessao
 	usuario, err := utils.VerificaSessao(c)
 	if err != nil {
@@ -150,23 +151,28 @@ func (h *HandlerLista) ApiListaDelete(c echo.Context) error {
 	}
 
 	// pega o ID da lista do path
-	listaID := c.Param("id")
-	var listaIDInt32 int32
-	_, err = fmt.Sscanf(listaID, "%d", &listaIDInt32)
+	err = c.Bind(&lista)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "ID inválido")
+		fmt.Println("erro no bind: ", err.Error())
+		sse := datastar.NewSSE(c.Response().Writer, c.Request())
+		return sse.MarshalAndPatchSignals(map[string]any{
+			"input_lista_erro": "Não foi possível identificar a lista a ser deletada...",
+		})
 	}
 
 	// faz o delete
-	err = models.DeletaLista(c.Request().Context(), listaIDInt32, &usuario)
+	err = models.DeletaLista(c.Request().Context(), &lista, &usuario)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		sse := datastar.NewSSE(c.Response().Writer, c.Request())
+		return sse.MarshalAndPatchSignals(map[string]any{
+			"input_lista_erro": "Erro ao deletar lista no banco de dados...",
+		})
 	}
 
 	// manda evento pra publicação
 	h.PubSub.PublisherChan <- "listas"
 
-	return c.NoContent(http.StatusOK)
+	return nil
 }
 
 func (h *HandlerLista) ApiListaPatch(c echo.Context) error {

@@ -11,7 +11,7 @@ import (
 var ErrListaDuplicada = errors.New("lista com esse nome já existe para este usuário")
 
 type Lista struct {
-	ID           int32              `json:"id" db:"id"`
+	ID           int32              `param:"id" json:"id" db:"id"`
 	UsuarioID    int32              `json:"usuario_id" db:"usuario_id"`
 	Lista        string             `json:"lista" db:"lista"`
 	Descricao    pgtype.Text        `json:"descricao" db:"descricao"`
@@ -92,7 +92,7 @@ func InsereLista(ctx context.Context, listaNome string, u *Usuario) error {
 
 // AtualizaLista atualiza uma lista existente
 func AtualizaLista(ctx context.Context, lista *Lista, usuario *Usuario) error {
-	_, err := GetDB().ExecContext(ctx, `
+	_, err := db.ExecContext(ctx, `
 		UPDATE listas.listas SET
 			lista = $1,
 			descricao = $2,
@@ -103,10 +103,10 @@ func AtualizaLista(ctx context.Context, lista *Lista, usuario *Usuario) error {
 }
 
 // DeletaLista deleta uma lista
-func DeletaLista(ctx context.Context, listaID int32, usuario *Usuario) error {
-	_, err := GetDB().ExecContext(ctx, `
+func DeletaLista(ctx context.Context, lista *Lista, usuario *Usuario) error {
+	_, err := db.ExecContext(ctx, `
 		DELETE FROM listas.listas
 		WHERE id = $1 AND usuario_id = $2
-	`, listaID, usuario.ID)
+	`, lista.ID, usuario.ID)
 	return err
 }

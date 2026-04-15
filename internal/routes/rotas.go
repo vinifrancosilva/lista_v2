@@ -29,5 +29,5 @@ func DefineRotas(e *echo.Echo, pb *models.PubSubChanels) {
 	g.GET("/lista", HandlerLista.ListaGet)
 	g.POST("/lista/create", HandlerLista.ListaCreatePost)
 	g.PATCH("/lista/:id", HandlerLista.ApiListaPatch)
-	g.DELETE("/lista/:id", HandlerLista.ApiListaDelete)
+	g.DELETE("/lista/:id", HandlerLista.ListaDelete)
 }
