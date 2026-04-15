@@ -92,13 +92,6 @@ func dbInit() *pgstore.PGStore {
 		SessionSecretKey: os.Getenv("SESSION_SECRET_KEY"),
 	}
 
-	// Cria a string de conexão com o banco de dados
-	// searchPath := appConfig.DbSearchPath
-	// if searchPath == "" {
-	// 	searchPath = "public"
-	// }
-	// options := url.QueryEscape(fmt.Sprintf("-c search_path=%s", searchPath))
-
 	dbURL := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s&search_path=%s",
 		// "postgres://%s:%s@%s:%s/%s?sslmode=%s&options=%s",

@@ -2,9 +2,13 @@ package models
 
 import (
 	"context"
+	"errors"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+var ErrListaDuplicada = errors.New("lista com esse nome já existe para este usuário")
 
 type Lista struct {
 	ID           int32              `json:"id" db:"id"`
@@ -68,15 +72,21 @@ func PegaLista(ctx context.Context, listaID, usuarioID int32) (*Lista, error) {
 
 // InsereLista insere uma nova lista
 func InsereLista(ctx context.Context, listaNome string, u *Usuario) error {
-	_, err := GetDB().ExecContext(
+	_, err := db.ExecContext(
 		ctx,
 		`
-		INSERT INTO listas.listas (usuario_id, lista, descricao)
+		INSERT INTO listas.listas (usuario_id, lista)
 		VALUES ($1, $2)
 	`,
 		u.ID,
 		listaNome,
 	)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return ErrListaDuplicada
+		}
+	}
 	return err
 }
 

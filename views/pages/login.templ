@@ -20,7 +20,7 @@ templ LoginPage() {
 							<input
 								data-bind:usuario
 								data-ref="input_usuario"
-								data-on:load="$input_usuario.focus()"
+								data-init="$input_usuario.focus()"
 								type="text"
 								class="input input-bordered focus:input-primary focus:outline-none w-full"
 								id="usuario"

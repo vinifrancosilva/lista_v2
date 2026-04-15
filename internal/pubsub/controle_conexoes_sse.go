@@ -10,6 +10,7 @@ import (
 func ControleConexoesSSE(pubsub *models.PubSubChanels) {
 	// Mapa de controle
 	mapaControle := make(map[string][]chan struct{})
+	c := 0
 
 	// Controla os eventos
 	for {
@@ -37,7 +38,7 @@ func ControleConexoesSSE(pubsub *models.PubSubChanels) {
 		// quando há uma mudança no banco de dados é feito um publish e o endpoint fica encarregado de reenviar a informação que lhe compete
 		case endpoint := <-pubsub.PublisherChan:
 			fmt.Println("Recebido evento para publicação: ", endpoint)
-			c := 0
+			c = 0
 			if _, ok := mapaControle[endpoint]; ok {
 				for _, ch := range mapaControle[endpoint] {
 					ch <- struct{}{}

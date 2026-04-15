@@ -28,11 +28,11 @@ templ Index(titulo string, usuarios []models.Usuario) {
 					<h1 class="text-4xl font-bold">Listas V2</h1>
 				</div>
 			</div>
-			// <div class="flex flex-col gap-4 justify-center items-center border space-y-4 p-4 mx-4">
-			@lc.FormCriarLista(usuarios)
-			// </div>
+			
+			@lc.CriarLista(usuarios)
+
 			<div class="flex flex-col sm:flex-row justify-center items-center m-4">
-				<div class="w-full" data-on:load="@get('/api/lista')">
+				<div class="w-full" data-init="@get('/api/lista')">
 					<div id="lista_de_listas"></div>
 				</div>
 			</div>

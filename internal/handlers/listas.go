@@ -23,9 +23,9 @@ type HandlerLista struct {
 }
 
 func NewHandlerLista(pb *models.PubSubChanels) *HandlerLista {
-	return &HandlerLista{
-		PubSub: pb,
-	}
+	var h HandlerLista
+	h.PubSub = pb
+	return &h
 }
 
 // Get - abre o canal SSE que recebe todas as mudancas realizadas na lista
@@ -43,7 +43,7 @@ func (h *HandlerLista) ListaGet(c echo.Context) error {
 		Channel:  ch,
 	}
 
-	// abre o canal SSE
+	// abre o canal SS
 	sse := datastar.NewSSE(c.Response().Writer, c.Request())
 
 	// faz o subscribe
@@ -102,13 +102,15 @@ func (h *HandlerLista) ListaCreatePost(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
+	// cria o sse pra usar abaixo
+	sse := datastar.NewSSE(c.Response().Writer, c.Request())
+
 	// valida o DTO
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	err = validate.Struct(&listaPostDTO)
 	if err != nil {
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
-			sse := datastar.NewSSE(c.Response().Writer, c.Request())
 			return sse.MarshalAndPatchSignals(map[string]any{
 				"input_lista_erro": "Nome da lista é necessário...",
 			})
@@ -118,18 +120,26 @@ func (h *HandlerLista) ListaCreatePost(c echo.Context) error {
 	// insere no banco as informações validadas
 	err = models.InsereLista(c.Request().Context(), listaPostDTO.Lista, &usuario)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		if errors.Is(err, models.ErrListaDuplicada) {
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"input_lista_erro": "Já existe uma lista com esse nome para você.",
+			})
+		}
+		return sse.MarshalAndPatchSignals(map[string]any{
+			"input_lista_erro": "Erro ao criar lista no banco de dados...",
+		})
 	}
 
-	// limpa msg de erro caso exista
-	sse := datastar.NewSSE(c.Response().Writer, c.Request())
-	limpa_erro := `{input_lista_erro: ''}`
-	sse.PatchSignals([]byte(limpa_erro))
+	// limpa msg de erro caso exista e mostra msg de sucesso
+	sse.MarshalAndPatchSignals(map[string]any{
+		"input_lista_erro":    "",
+		"input_lista_sucesso": "Lista criada com sucesso!",
+	})
 
 	// manda evento pra publicação
 	h.PubSub.PublisherChan <- "listas"
 
-	return c.NoContent(http.StatusOK)
+	return nil
 }
 
 func (h *HandlerLista) ApiListaDelete(c echo.Context) error {
