@@ -70,7 +70,7 @@ func Index(titulo string, usuarios []models.Usuario) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div data-signals=\"{input_lista_erro: ''}\" class=\"flex flex-col justify-center items-center m-4 p-4 gap-4\"><div class=\"space-y-4\"><h1 class=\"text-4xl font-bold\">Listas V2</h1></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div data-signals=\"{linput_lista_erro: ''}\" class=\"flex flex-col justify-center items-center m-4 gap-4\"><div class=\"space-y-4\"><h1 class=\"text-4xl font-bold\">Listas V2</h1></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -79,6 +79,10 @@ func Index(titulo string, usuarios []models.Usuario) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " <div class=\"flex flex-col sm:flex-row justify-center items-center m-4\"><div class=\"w-full\" data-init=\"@get('/api/lista')\"><div id=\"lista_de_listas\"></div></div></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = lc.ModalEditLista().Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

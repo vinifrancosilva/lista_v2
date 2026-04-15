@@ -8,11 +8,7 @@ package listas
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"github.com/vinifrancosilva/lista_v2/internal/models"
-)
-
-func ListaDeListas(listas []models.ListaDbSelect) templ.Component {
+func ModalEditLista() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -33,17 +29,7 @@ func ListaDeListas(listas []models.ListaDbSelect) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col sm:flex-row justify-center items-center gap-4\" id=\"lista_de_listas\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for _, lista := range listas {
-			templ_7745c5c3_Err = CardLista(lista).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<dialog id=\"modal_edit_lista\" class=\"modal modal-bottom sm:modal-middle\" data-signals=\"{lista_id: '', lista_nome: '', lista_descricao: '', categorias: [], compartilhamentos: []}\" data-ref:m_e_l><div class=\"modal-box\"><h3 class=\"text-lg font-bold text-center mb-2\">Editar Lista</h3><div id=\"modal_edit_dados\" class=\"space-y-6\"></div><div class=\"modal-action\"><button class=\"btn\" data-on:click=\"$m_e_l.close()\">Fechar</button></div></div></dialog>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

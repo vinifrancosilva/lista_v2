@@ -9,7 +9,7 @@ import (
 )
 
 type Usuario struct {
-	ID           int32              `json:"id" db:"id"`
+	ID           int                `json:"id" db:"id"`
 	Usuario      string             `json:"usuario" db:"usuario"`
 	Senha        string             `json:"senha" db:"senha"`
 	Nome         pgtype.Text        `json:"nome" db:"nome"`

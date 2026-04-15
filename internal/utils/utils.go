@@ -20,7 +20,7 @@ func VerificaSessao(c echo.Context) (models.Usuario, error) {
 	}
 
 	// cria usuario struct com o ID
-	usuario := models.Usuario{ID: sessao.Values["usuario_id"].(int32)}
+	usuario := models.Usuario{ID: sessao.Values["usuario_id"].(int)}
 
 	return usuario, nil
 }

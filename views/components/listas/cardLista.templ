@@ -1,0 +1,53 @@
+package listas
+
+import (
+	"fmt"
+	"github.com/vinifrancosilva/lista_v2/internal/models"
+)
+
+templ CardLista(lista models.ListaDbSelect) {
+	<div
+		id={ fmt.Sprintf("card_lista_id_%v", lista.ID) }
+		class="card bg-base-200 shadow-sm sm:w-96 w-full"
+	>
+		<div class="card-body">
+			<div class="flex justify-between items-start">
+				<h2 class="card-title">{ lista.Lista }</h2>
+				<div class="flex gap-2">
+					<button
+						data-on:click={ "$m_e_l.showModal(), " + fmt.Sprintf("@get('/api/lista/%v/edit')", lista.ID) }
+						class="btn btn-ghost btn-sm btn-square"
+						title="Editar"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+							<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+						</svg>
+					</button>
+					<button
+						data-on:click={ fmt.Sprintf("confirm('Deseja realmente apagar esta lista?') && @delete('/api/lista/%v')", lista.ID) }
+						class="btn btn-ghost btn-sm btn-square text-error"
+						title="Excluir"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+							<path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.34 12m-4.74 0-.34-12m12.74-2.11c.82.21 1.48.85 1.59 1.7L19.7 7.33a3.1 3.1 0 0 1-3.07 2.76H7.37a3.1 3.1 0 0 1-3.07-2.76L4.1 8.59c.11-.85.77-1.49 1.59-1.7l12.74-2.11ZM10 11V6m4 5V6M9 6h6m-7 1v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V7H8Z" />
+						</svg>
+					</button>
+				</div>
+			</div>
+			if lista.Descricao.Valid {
+				<p class="text-sm opacity-70">{ lista.Descricao.String }</p>
+			}
+			<div class="mt-4">
+				<div class="flex justify-between text-xs mb-1">
+					<span>Progresso</span>
+					<span>{ fmt.Sprintf("%v / %v", lista.Concluidos, lista.Total) }</span>
+				</div>
+				<progress
+					class="progress progress-primary w-full"
+					value={ fmt.Sprintf("%v", lista.Concluidos) }
+					max={ fmt.Sprintf("%v", lista.Total) }
+				></progress>
+			</div>
+		</div>
+	</div>
+}

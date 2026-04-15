@@ -28,6 +28,10 @@ func DefineRotas(e *echo.Echo, pb *models.PubSubChanels) {
 	HandlerLista := handlers.NewHandlerLista(pb)
 	g.GET("/lista", HandlerLista.ListaGet)
 	g.POST("/lista/create", HandlerLista.ListaCreatePost)
-	g.PATCH("/lista/:id", HandlerLista.ApiListaPatch)
+	g.PATCH("/lista/:id", HandlerLista.ListaUpdate)
 	g.DELETE("/lista/:id", HandlerLista.ListaDelete)
+	// ------------ fragmentos Datastar ------------
+	g.GET("/lista/:id/edit", handlers.ListaGetEdit)
+
+	// API dos Itens
 }

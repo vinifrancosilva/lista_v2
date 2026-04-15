@@ -1,12 +1,12 @@
-package listas_components
+package listas
 
 import "github.com/vinifrancosilva/lista_v2/internal/models"
 
 templ CriarLista(usuarios []models.Usuario) {
 	<section
 		id="form_cria_lista"
-		class="w-full max-w-lg mx-auto p-4"
-		data-signals="{input_lista_erro: '', lista: ''}"
+		class="w-full max-w-lg mx-auto px-4"
+		data-signals="{criarLista: ''}"
 	>
 		<div class="flex w-full flex-col gap-4">
 		// <div class="flex ">
@@ -15,7 +15,7 @@ templ CriarLista(usuarios []models.Usuario) {
 				<legend class="fieldset-legend">Criar nova lista</legend>
 				<div class="join">
 					<input
-						data-bind:lista
+						data-bind:criarLista
 						type="text"
 						class="input input-bordered w-full"
 						placeholder="Nome da nova lista..."

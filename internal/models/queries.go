@@ -32,8 +32,8 @@ func NewQueries(db *pgx.Conn) *Queries {
 type AtualizaListaParams struct {
 	Lista     string      `json:"lista"`
 	Descricao pgtype.Text `json:"descricao"`
-	ListaID   int32       `json:"lista_id"`
-	UsuarioID int32       `json:"usuario_id"`
+	ListaID   int         `json:"lista_id"`
+	UsuarioID int         `json:"usuario_id"`
 }
 
 // func (q *Queries) AtualizaLista(ctx context.Context, arg AtualizaListaParams) error {
@@ -54,8 +54,8 @@ type AtualizaListaParams struct {
 // `
 
 type DeletaListaParams struct {
-	UsuarioID int32 `json:"usuario_id"`
-	ListaID   int32 `json:"lista_id"`
+	UsuarioID int `json:"usuario_id"`
+	ListaID   int `json:"lista_id"`
 }
 
 // func DeletaLista(ctx context.Context, arg DeletaListaParams) error {
@@ -64,7 +64,7 @@ type DeletaListaParams struct {
 // }
 
 type InsereListaParams struct {
-	UsuarioID int32  `json:"usuario_id"`
+	UsuarioID int    `json:"usuario_id"`
 	Lista     string `json:"lista"`
 	Descricao string `json:"descricao"`
 }
@@ -92,7 +92,7 @@ func (q *Queries) InsereLista(ctx context.Context, arg InsereListaParams) error 
 // `
 
 type UsuarioDbSelect struct {
-	ID      int32  `json:"id"`
+	ID      int    `json:"id"`
 	Usuario string `json:"usuario"`
 }
 
@@ -121,7 +121,7 @@ type UsuarioDbSelect struct {
 // WHERE id = $1
 // `
 
-// func (q *Queries) PegaLista(ctx context.Context, listaID int32) (PegaListaRow, error) {
+// func (q *Queries) PegaLista(ctx context.Context, listaID int) (PegaListaRow, error) {
 // 	row := q.db.QueryRow(ctx, pegaLista, listaID)
 // 	var i PegaListaRow
 // 	err := row.Scan(&i.ID, &i.Lista, &i.Descricao)
@@ -134,7 +134,7 @@ type UsuarioDbSelect struct {
 // ORDER BY criado_em DESC
 // `
 
-// func (q *Queries) PegaListas(ctx context.Context, usuarioID int32) ([]PegaListasRow, error) {
+// func (q *Queries) PegaListas(ctx context.Context, usuarioID int) ([]PegaListasRow, error) {
 // 	rows, err := q.db.Query(ctx, pegaListas, usuarioID)
 // 	if err != nil {
 // 		return nil, err
@@ -168,7 +168,7 @@ type PegaUsuariosCompartilhamentoRow struct {
 	Nome pgtype.Text `json:"nome"`
 }
 
-// func (q *Queries) PegaUsuariosCompartilhamento(ctx context.Context, usuarioID int32) ([]PegaUsuariosCompartilhamentoRow, error) {
+// func (q *Queries) PegaUsuariosCompartilhamento(ctx context.Context, usuarioID int) ([]PegaUsuariosCompartilhamentoRow, error) {
 // 	rows, err := q.db.Query(ctx, pegaUsuariosCompartilhamento, usuarioID)
 // 	if err != nil {
 // 		return nil, err
@@ -201,7 +201,7 @@ type TestaLoginParams struct {
 }
 
 type LoginRow struct {
-	ID      int32  `json:"id"`
+	ID      int    `json:"id"`
 	Usuario string `json:"usuario"`
 }
 

@@ -1,0 +1,111 @@
+package listas
+
+import (
+	"fmt"
+	"github.com/vinifrancosilva/lista_v2/internal/models"
+)
+
+func isShared(userID int, sharedIDs []int) bool {
+	for _, id := range sharedIDs {
+		if id == userID {
+			return true
+		}
+	}
+	return false
+}
+
+func isLinked(catID int, linkedIDs []int) bool {
+	for _, id := range linkedIDs {
+		if id == catID {
+			return true
+		}
+	}
+	return false
+}
+
+templ ModalDadosEditarLista(edicao *models.ListaEdicao) {
+	<div id="modal_edit_dados" class="space-y-6">
+
+		<!-- Nome da Lista -->
+		<div class="form-control">
+			<label class="label">
+				<span class="label-text font-semibold">Nome da Lista</span>
+			</label>
+			<input
+				type="hidden"
+				data-bind:lista_id
+			/>
+			<input
+				type="text"
+				data-bind:lista_nome
+				data-ref:input_lista_nome
+				data-init="$input_lista_nome.focus()"
+				class="input input-bordered w-full"
+			/>
+				// data-on:input.debounce_500ms={ fmt.Sprintf("@patch('/api/lista/%v')", edicao.Lista.ID) }
+		</div>
+
+		<!-- Descrição -->
+		<div class="form-control">
+			<label class="label">
+				<span class="label-text font-semibold">Descrição</span>
+			</label>
+			<textarea
+				data-bind:lista_descricao
+				class="textarea textarea-bordered h-24 w-full"
+				data-on:input.debounce_500ms={ fmt.Sprintf("@patch('/api/lista/%v')", edicao.Lista.ID) }
+			></textarea>
+		</div>
+
+		<!-- Categorias -->
+		<div class="form-control">
+			<label class="label">
+				<span class="label-text font-semibold">Categorias</span>
+			</label>
+			<div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-base-200">
+				if len(edicao.Categorias) == 0 {
+					<p class="text-sm opacity-50 italic">Nenhuma categoria criada.</p>
+				}
+				for _, catEdicao := range edicao.Categorias {
+					<label class="flex items-center gap-2 cursor-pointer p-2 hover:bg-base-300 rounded-lg">
+						<input
+							type="checkbox"
+							class="checkbox checkbox-sm checkbox-secondary"
+							value={ catEdicao.Categoria.ID }
+							checked?={ catEdicao.Vinculada }
+							data-bind:categorias
+							data-on:change={ fmt.Sprintf("@patch('/api/lista/%v', {toggle_categoria: %v})", edicao.Lista.ID, catEdicao.Categoria.ID) }
+						/>
+						<span class="text-sm">{ catEdicao.Categoria.Categoria }</span>
+					</label>
+				}
+			</div>
+		</div>
+
+		<!-- Compartilhamento -->
+		<div class="form-control">
+			<label class="label">
+				<span class="label-text font-semibold">Compartilhar com</span>
+			</label>
+			<div class="space-y-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-base-200">
+				if len(edicao.Compartilhamentos) == 0 {
+					<p class="text-sm opacity-50 italic">Nenhum outro usuário disponível.</p>
+				}
+				for _, userEdicao := range edicao.Compartilhamentos {
+					<label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-base-300 rounded-lg">
+						<input
+							type="checkbox"
+							class="checkbox checkbox-primary"
+							value={ userEdicao.Usuario.ID }
+							checked?={ userEdicao.Compartilhado }
+							data-bind:compartilhamentos
+							data-on:change={ fmt.Sprintf("@patch('/api/lista/%v', {toggle_user: %v})", edicao.Lista.ID, userEdicao.Usuario.ID) }
+						/>
+						<span class="text-sm">{ userEdicao.Usuario.Nome.String }</span>
+					</label>
+				}
+			</div>
+		</div>
+
+	</div>
+}

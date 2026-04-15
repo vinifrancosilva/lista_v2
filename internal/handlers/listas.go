@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -94,7 +93,7 @@ func (h *HandlerLista) ListaCreatePost(c echo.Context) error {
 
 	// para manter separation os concerns, cria uma DTO pra receber e validar info do front
 	listaPostDTO := struct {
-		Lista string `json:"lista" validate:"required"`
+		Lista string `json:"criarLista" validate:"required"`
 	}{}
 
 	// faz o parse dos dados do datastar
@@ -153,7 +152,6 @@ func (h *HandlerLista) ListaDelete(c echo.Context) error {
 	// pega o ID da lista do path
 	err = c.Bind(&lista)
 	if err != nil {
-		fmt.Println("erro no bind: ", err.Error())
 		sse := datastar.NewSSE(c.Response().Writer, c.Request())
 		return sse.MarshalAndPatchSignals(map[string]any{
 			"input_lista_erro": "Não foi possível identificar a lista a ser deletada...",
@@ -175,11 +173,11 @@ func (h *HandlerLista) ListaDelete(c echo.Context) error {
 	return nil
 }
 
-func (h *HandlerLista) ApiListaPatch(c echo.Context) error {
+func (h *HandlerLista) ListaUpdate(c echo.Context) error {
 	SignalsAndParams := struct {
-		ListaID   int32  `param:"id"`
-		Lista     string `json:"lista"`
-		Descricao string `json:"descricao"`
+		ListaID   int    `param:"lista_id"`
+		Lista     string `json:"lista_nome" validate:"required"`
+		Descricao string `json:"lista_descricao"`
 	}{}
 
 	// pega usuario da sessao
@@ -223,4 +221,48 @@ func (h *HandlerLista) ApiListaPatch(c echo.Context) error {
 	h.PubSub.PublisherChan <- "listas"
 
 	return c.NoContent(http.StatusOK)
+}
+
+// ------------ fragmentos Datastar ------------
+
+// ListaGetEdit retorna os dados de uma lista específica para preencher o formulário de edição
+func ListaGetEdit(c echo.Context) error {
+	var lista models.Lista
+
+	// pega usuario da sessao
+	usuario, err := utils.VerificaSessao(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	// pega o ID da lista do path
+	err = c.Bind(&lista)
+	if err != nil {
+		sse := datastar.NewSSE(c.Response().Writer, c.Request())
+		return sse.MarshalAndPatchSignals(map[string]any{
+			"input_lista_erro": "Não foi possível identificar a lista a ser editada...",
+		})
+	}
+
+	// pega a lista atual no banco de dados
+	listaEdicao, err := models.PegaListaEdicao(c.Request().Context(), &lista, &usuario)
+	if err != nil {
+		sse := datastar.NewSSE(c.Response().Writer, c.Request())
+		return sse.MarshalAndPatchSignals(map[string]any{
+			"input_lista_erro": "Erro ao pegar lista no banco de dados...",
+		})
+	}
+
+	// envia pro front
+	vt := datastar.WithUseViewTransitions(true)
+	sse := datastar.NewSSE(c.Response().Writer, c.Request())
+
+	// sse.PatchSignals()
+	sse.MarshalAndPatchSignals(map[string]any{
+		"lista_id":        listaEdicao.Lista.ID,
+		"lista_nome":      listaEdicao.Lista.Lista,
+		"lista_descricao": listaEdicao.Lista.Descricao.String,
+	})
+
+	return sse.PatchElementTempl(lc.ModalDadosEditarLista(listaEdicao), vt)
 }

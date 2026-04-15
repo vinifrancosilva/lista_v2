@@ -1,0 +1,22 @@
+package listas
+
+templ ModalEditLista() {
+	<dialog 
+		id="modal_edit_lista" 
+		class="modal modal-bottom sm:modal-middle"
+    data-signals="{lista_id: '', lista_nome: '', lista_descricao: '', categorias: [], compartilhamentos: []}"
+		data-ref:m_e_l
+	>
+
+		<div class="modal-box">
+
+			<h3 class="text-lg font-bold text-center mb-2">Editar Lista</h3>
+
+			<div id="modal_edit_dados" class="space-y-6"></div>
+
+			<div class="modal-action">
+					<button class="btn" data-on:click="$m_e_l.close()">Fechar</button>
+			</div>
+		</div>
+	</dialog>
+}
